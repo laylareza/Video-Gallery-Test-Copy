@@ -1,77 +1,121 @@
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col">
-        <h1>Welcome to Our Video Library</h1>
-      </div>
+  <div class="container">
+    <div class="select-container">
+      <select>
+        <option value="0">Video Filter</option>
+        <option value="1">Video Option 1</option>
+        <option value="2">Video Option 2</option>
+        <option value="3">Video Option 3</option>
+        <option value="4">Video Option 4</option>
+        <option value="5">Video Option 5</option>
+        <option value="6">Video Option 6</option>
+        <option value="7">Video Option 7</option>
+        <option value="8">Video Option 8</option>
+      </select>
     </div>
-    <div class="row">
-      <div class="col">
-        <b-list-group>
-          <b-list-group-item>Cras justo odio</b-list-group-item>
-          <b-list-group-item>Dapibus ac facilisis in</b-list-group-item>
-          <b-list-group-item>Morbi leo risus</b-list-group-item>
-          <b-list-group-item>Porta ac consectetur ac</b-list-group-item>
-          <b-list-group-item>Vestibulum at eros</b-list-group-item>
-        </b-list-group>
-      </div>
+    <div class="video-cards-container">
+      <VideoSummary 
+        v-for="video in videos" 
+        :key="video.id" 
+        :video="video"
+      />
     </div>
+    <button class="more-btn" v-on:click="getMoreVideos"> More Videos </button>
   </div>
 </template>
 
+
 <script>
+import VideoSummary from '../../components/VideoSummary.vue';
 export default {
   data() {
     return {
-      form: {
-        email: ''
-      },
+      videos: null,
+      allVideos: null,
+      username:''
     };
   },
+  mounted() {
+    this.username = this.$store.getters['login/getCurrentUsername'];
+    if (this.username == "") {
+      this.$router.push({
+              path: '/login',
+            });
+    } else {
+      this.$store.commit('login/setCurrentUsername', this.username);
+    }
+  },
   methods: {
-    onSubmit(){
-      console.log('A form was submitted');
+    getVideos() {
+      fetch('http://localhost:8080/videos')
+      .then(response => response.json())
+      .then(responseData => {
+        if (responseData.statusCode === 200) {
+            var allVideos = [];
+              var i = 0;
+            for (var i in responseData.data) {
+                allVideos.push(responseData.data[i]);
+            }
+          this.allVideos = allVideos;
+          this.videos = allVideos.slice(0, 6);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
     },
-  }
+
+    getMoreVideos() {
+      this.videos = this.allVideos.slice(6, this.allVideos.lentgh);
+    }
+  },
+  components: {
+    VideoSummary,
+  },
+  created() {
+    this.getVideos();
+  },
 }
 </script>
 
+
 <style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
 
-.title {
-  font-family: 'Quicksand',
-  'Source Sans Pro',
-  -apple-system,
-  BlinkMacSystemFont,
-  'Segoe UI',
-  Roboto,
-  'Helvetica Neue',
-  Arial,
-  sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
+  .select-container {
+    margin-top: 50px;
+    width: 50px;
+  }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
+  .select-container select {
+    width: 340px;
+    height: 30px;
+    background:none;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
 
-.links {
-  padding-top: 15px;
-}
+  .select-container select option {
+    background:none;
+    -webkit-appearance:none;
+  }
+
+  .video-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+  }
+
+  .more-btn {
+    width: 20%;
+    border-radius: 20px;
+    background-color: orangered;
+    margin:auto auto;
+    border:none;
+  }
 </style>

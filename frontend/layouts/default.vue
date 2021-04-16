@@ -1,8 +1,20 @@
 <template>
   <div>
+    <AlgaeCalHeader />
     <Nuxt />
   </div>
 </template>
+
+<script>
+import AlgaeCalHeader from '../components/AlgaeCalHeader'
+
+export default {
+  components: {
+    AlgaeCalHeader
+  }
+}
+</script>
+
 
 <style>
 html {
